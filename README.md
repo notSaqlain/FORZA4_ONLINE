@@ -4,12 +4,12 @@ A web-based implementation of the classic Connect Four (FORZA4) game.
 
 ## Features
 
-- 🎮 Two-player gameplay (Player 1 vs Player 2)
-- 🎨 Beautiful, modern UI with gradient backgrounds
-- 🏆 Automatic win detection (horizontal, vertical, and diagonal)
-- ✨ Winning cells animation
-- 🔄 New Game button to reset and play again
-- 📱 Responsive design for mobile and desktop
+- Two-player gameplay (Player 1 vs Player 2)
+- Beautiful, modern UI with gradient backgrounds
+- Automatic win detection (horizontal, vertical, and diagonal)
+- Winning cells animation
+- New Game button to reset and play again
+- Responsive design for mobile and desktop
 
 ## How to Play
 
