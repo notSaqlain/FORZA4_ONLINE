@@ -49,10 +49,22 @@ if ($action === 'register') {
         }
     }
 
+    $pfpType = $_POST['pfp_type'] ?? 'color';
+    $pfpValue = $_POST['pfp_value'] ?? '';
+    
+    $pfp = [];
+    if ($pfpType === 'image' && !empty($pfpValue)) {
+        $pfp = ['type' => 'image', 'value' => $pfpValue];
+    } elseif ($pfpType === 'color' && !empty($pfpValue)) {
+        $pfp = ['type' => 'color', 'value' => $pfpValue];
+    } else {
+        $pfp = generateRandomPfp();
+    }
+
     $newUser = [
         'username' => $username,
         'password' => $password, // In production, hash this!
-        'pfp' => generateRandomPfp(),
+        'pfp' => $pfp,
         'stats' => ['wins' => 0, 'losses' => 0]
     ];
 
