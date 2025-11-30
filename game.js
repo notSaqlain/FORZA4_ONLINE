@@ -22,7 +22,7 @@ function initGame() {
 function createBoard() {
     const boardElement = document.getElementById('board');
     boardElement.innerHTML = '';
-    
+
     for (let row = 0; row < ROWS; row++) {
         for (let col = 0; col < COLS; col++) {
             const cell = document.createElement('div');
@@ -38,14 +38,14 @@ function createBoard() {
 // Handle cell click
 function handleCellClick(col) {
     if (gameOver) return;
-    
+
     const row = getLowestEmptyRow(col);
     if (row === -1) return; // Column is full
-    
+
     // Place the piece
     board[row][col] = currentPlayer;
     updateCell(row, col);
-    
+
     // Check for win or draw
     if (checkWin(row, col)) {
         gameOver = true;
@@ -53,13 +53,13 @@ function handleCellClick(col) {
         updateStatus(`Player ${currentPlayer} Wins!`, true);
         return;
     }
-    
+
     if (checkDraw()) {
         gameOver = true;
         updateStatus("It's a Draw!", false, true);
         return;
     }
-    
+
     // Switch player
     currentPlayer = currentPlayer === PLAYER1 ? PLAYER2 : PLAYER1;
     updateStatus();
@@ -80,7 +80,7 @@ function updateCell(row, col) {
     const cells = document.querySelectorAll('.cell');
     const cellIndex = row * COLS + col;
     const cell = cells[cellIndex];
-    
+
     if (board[row][col] === PLAYER1) {
         cell.classList.add('player1');
     } else if (board[row][col] === PLAYER2) {
@@ -91,16 +91,16 @@ function updateCell(row, col) {
 // Check if current player has won
 function checkWin(row, col) {
     return checkDirection(row, col, 0, 1) || // Horizontal
-           checkDirection(row, col, 1, 0) || // Vertical
-           checkDirection(row, col, 1, 1) || // Diagonal /
-           checkDirection(row, col, 1, -1);  // Diagonal \
+        checkDirection(row, col, 1, 0) || // Vertical
+        checkDirection(row, col, 1, 1) || // Diagonal /
+        checkDirection(row, col, 1, -1);  // Diagonal \
 }
 
 // Check a specific direction for four in a row
 function checkDirection(row, col, deltaRow, deltaCol) {
     let count = 1;
     const player = board[row][col];
-    
+
     // Check in positive direction
     let r = row + deltaRow;
     let c = col + deltaCol;
@@ -109,7 +109,7 @@ function checkDirection(row, col, deltaRow, deltaCol) {
         r += deltaRow;
         c += deltaCol;
     }
-    
+
     // Check in negative direction
     r = row - deltaRow;
     c = col - deltaCol;
@@ -118,7 +118,7 @@ function checkDirection(row, col, deltaRow, deltaCol) {
         r -= deltaRow;
         c -= deltaCol;
     }
-    
+
     return count >= 4;
 }
 
@@ -150,16 +150,16 @@ function highlightWinningCells() {
 // Check if a cell is part of winning sequence
 function isPartOfWinningSequence(row, col) {
     return isPartOfDirection(row, col, 0, 1) || // Horizontal
-           isPartOfDirection(row, col, 1, 0) || // Vertical
-           isPartOfDirection(row, col, 1, 1) || // Diagonal /
-           isPartOfDirection(row, col, 1, -1);  // Diagonal \
+        isPartOfDirection(row, col, 1, 0) || // Vertical
+        isPartOfDirection(row, col, 1, 1) || // Diagonal /
+        isPartOfDirection(row, col, 1, -1);  // Diagonal \
 }
 
 // Check if cell is part of winning sequence in a direction
 function isPartOfDirection(row, col, deltaRow, deltaCol) {
     const player = board[row][col];
     let count = 1;
-    
+
     // Check positive direction
     let r = row + deltaRow;
     let c = col + deltaCol;
@@ -168,7 +168,7 @@ function isPartOfDirection(row, col, deltaRow, deltaCol) {
         r += deltaRow;
         c += deltaCol;
     }
-    
+
     // Check negative direction
     r = row - deltaRow;
     c = col - deltaCol;
@@ -177,14 +177,14 @@ function isPartOfDirection(row, col, deltaRow, deltaCol) {
         r -= deltaRow;
         c -= deltaCol;
     }
-    
+
     return count >= 4;
 }
 
 // Update status message
 function updateStatus(message = null, isWinner = false, isDraw = false) {
     const statusElement = document.getElementById('status');
-    
+
     if (message) {
         statusElement.textContent = message;
         if (isWinner) {
