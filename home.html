@@ -76,7 +76,7 @@
                         <h4>PvCPU</h4>
                         <p>Challenge the AI computer.</p>
                     </div>
-                    <div class="mode-card disabled">
+                    <div class="mode-card disabled" id="online-mode-card" onclick="startGame('online')">
                         <h4>Online PvP</h4>
                         <p>Login required for Online play.</p>
                     </div>
@@ -103,6 +103,9 @@
 
         function updateUserUI() {
             const controls = document.getElementById('user-controls');
+            const onlineCard = document.getElementById('online-mode-card');
+            const onlineText = onlineCard.querySelector('p');
+
             if (currentUser) {
                 let pfpStyle = '';
                 if (currentUser.pfp.type === 'color') {
@@ -118,10 +121,19 @@
                         <button onclick="logout()" class="reset-btn small-btn">Logout</button>
                     </div>
                 `;
+
+                // Enable Online Mode
+                onlineCard.classList.remove('disabled');
+                onlineText.textContent = "Play against others online.";
+
             } else {
                 controls.innerHTML = `
                     <button onclick="toggleAuth()" class="reset-btn">Login / Register</button>
                 `;
+
+                // Disable Online Mode
+                onlineCard.classList.add('disabled');
+                onlineText.textContent = "Login required for Online play.";
             }
         }
 
@@ -230,9 +242,13 @@
         }
 
         function startGame(mode) {
-            if (mode === 'online' && !currentUser) {
-                alert("Please login to play online!");
-                toggleAuth();
+            if (mode === 'online') {
+                if (!currentUser) {
+                    alert("Please login to play online!");
+                    toggleAuth();
+                } else {
+                    alert("Online Multiplayer is Coming Soon!");
+                }
                 return;
             }
             localStorage.setItem('forza4_gameMode', mode);
