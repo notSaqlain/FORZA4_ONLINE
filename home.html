@@ -28,6 +28,7 @@
                     <button type="submit" class="reset-btn">Login</button>
                 </form>
                 <p class="auth-switch">New here? <a href="#" id="show-register">Register</a></p>
+                <div id="login-message" class="message"></div>
             </div>
 
             <div class="auth-box hidden" id="register-box">
@@ -58,8 +59,8 @@
                     <button type="submit" class="reset-btn">Register</button>
                 </form>
                 <p class="auth-switch">Already have an account? <a href="#" id="show-login">Login</a></p>
+                <div id="register-message" class="message"></div>
             </div>
-            <div id="auth-message" class="message"></div>
         </div>
 
         <!-- Main Dashboard -->
@@ -166,10 +167,10 @@
                     updateUserUI();
                     toggleAuth();
                 } else {
-                    showMessage(data.message, 'error');
+                    showMessage(data.message, 'error', 'login-message');
                 }
             } catch (err) {
-                showMessage('Connection error', 'error');
+                showMessage('Connection error', 'error', 'login-message');
             }
         });
 
@@ -207,10 +208,10 @@
                     updateUserUI();
                     toggleAuth();
                 } else {
-                    showMessage(data.message, 'error');
+                    showMessage(data.message, 'error', 'register-message');
                 }
             } catch (err) {
-                showMessage('Connection error', 'error');
+                showMessage('Connection error', 'error', 'register-message');
             }
         });
 
@@ -220,10 +221,12 @@
             updateUserUI();
         }
 
-        function showMessage(msg, type) {
-            const el = document.getElementById('auth-message');
-            el.textContent = msg;
-            el.className = `message ${type}`;
+        function showMessage(msg, type, targetId) {
+            const el = document.getElementById(targetId);
+            if (el) {
+                el.textContent = msg;
+                el.className = `message ${type}`;
+            }
         }
 
         function startGame(mode) {
