@@ -8,14 +8,44 @@ const PLAYER2 = 2;
 let board = [];
 let currentPlayer = PLAYER1;
 let gameOver = false;
+let gameMode = 'pvp'; // 'pvp' or 'pvcpu'
+let stats = {
+    p1Wins: 0,
+    p2Wins: 0
+};
 
 // Initialize the game
 function initGame() {
     board = Array(ROWS).fill(null).map(() => Array(COLS).fill(EMPTY));
     currentPlayer = PLAYER1;
     gameOver = false;
+
+    // Read mode from localStorage
+    gameMode = localStorage.getItem('forza4_gameMode') || 'pvp';
+
+    loadStats();
     createBoard();
     updateStatus();
+    updateStatsUI();
+}
+
+// Load stats from localStorage
+function loadStats() {
+    const savedStats = localStorage.getItem('forza4_stats');
+    if (savedStats) {
+        stats = JSON.parse(savedStats);
+    }
+}
+
+// Save stats to localStorage
+function saveStats() {
+    localStorage.setItem('forza4_stats', JSON.stringify(stats));
+}
+
+// Update Stats UI
+function updateStatsUI() {
+    document.getElementById('p1-wins').textContent = stats.p1Wins;
+    document.getElementById('p2-wins').textContent = stats.p2Wins;
 }
 
 // Create the game board UI
@@ -38,9 +68,19 @@ function createBoard() {
 // Handle cell click
 function handleCellClick(col) {
     if (gameOver) return;
+    if (gameMode === 'pvcpu' && currentPlayer === PLAYER2) return; // Block input during AI turn
 
+    if (makeMove(col)) {
+        if (!gameOver && gameMode === 'pvcpu' && currentPlayer === PLAYER2) {
+            setTimeout(makeAIMove, 500); // Small delay for AI
+        }
+    }
+}
+
+// Make a move
+function makeMove(col) {
     const row = getLowestEmptyRow(col);
-    if (row === -1) return; // Column is full
+    if (row === -1) return false; // Column is full
 
     // Place the piece
     board[row][col] = currentPlayer;
@@ -51,18 +91,75 @@ function handleCellClick(col) {
         gameOver = true;
         highlightWinningCells();
         updateStatus(`Player ${currentPlayer} Wins!`, true);
-        return;
+
+        if (currentPlayer === PLAYER1) {
+            stats.p1Wins++;
+            syncStats(true); // Sync win for logged in user (assuming they are P1)
+        } else {
+            stats.p2Wins++;
+            syncStats(false); // Sync loss
+        }
+        saveStats();
+        updateStatsUI();
+
+        return true;
     }
 
     if (checkDraw()) {
         gameOver = true;
         updateStatus("It's a Draw!", false, true);
-        return;
+        return true;
     }
 
     // Switch player
     currentPlayer = currentPlayer === PLAYER1 ? PLAYER2 : PLAYER1;
     updateStatus();
+    return true;
+}
+
+// AI Logic
+function makeAIMove() {
+    if (gameOver) return;
+
+    // 1. Check for winning move
+    let col = findBestMove(PLAYER2);
+    if (col === -1) {
+        // 2. Check for blocking move
+        col = findBestMove(PLAYER1);
+    }
+    if (col === -1) {
+        // 3. Random valid move
+        const validCols = [];
+        for (let c = 0; c < COLS; c++) {
+            if (board[0][c] === EMPTY) validCols.push(c);
+        }
+        if (validCols.length > 0) {
+            col = validCols[Math.floor(Math.random() * validCols.length)];
+        }
+    }
+
+    if (col !== -1) {
+        makeMove(col);
+    }
+}
+
+// Find a column that results in a win for the given player
+function findBestMove(player) {
+    for (let col = 0; col < COLS; col++) {
+        const row = getLowestEmptyRow(col);
+        if (row !== -1) {
+            // Simulate move
+            board[row][col] = player;
+            if (checkWin(row, col)) {
+                // Undo move
+                board[row][col] = EMPTY;
+                return col;
+            }
+            // Undo move
+            board[row][col] = EMPTY;
+        }
+    }
+    return -1;
 }
 
 // Get the lowest empty row in a column
@@ -195,13 +292,48 @@ function updateStatus(message = null, isWinner = false, isDraw = false) {
             statusElement.classList.remove('winner');
         }
     } else {
-        statusElement.textContent = `Player ${currentPlayer}'s Turn`;
+        if (gameMode === 'pvcpu' && currentPlayer === PLAYER2) {
+            statusElement.textContent = `CPU is thinking...`;
+        } else {
+            statusElement.textContent = `Player ${currentPlayer}'s Turn`;
+        }
         statusElement.classList.remove('winner', 'draw');
     }
 }
+
+// Mode Selection Handlers - Removed in favor of Dashboard
+// document.getElementById('pvp-btn').addEventListener('click', ...);
+// document.getElementById('pvcpu-btn').addEventListener('click', ...);
+
+// Home button handler
+document.getElementById('home-btn').addEventListener('click', () => {
+    window.location.href = 'home.html';
+});
 
 // Reset button handler
 document.getElementById('reset-btn').addEventListener('click', initGame);
 
 // Initialize game on page load
 initGame();
+
+// Update Stats UI (and sync with backend)
+function updateStatsUI() {
+    document.getElementById('p1-wins').textContent = stats.p1Wins;
+    document.getElementById('p2-wins').textContent = stats.p2Wins;
+}
+
+async function syncStats(isWin) {
+    const user = JSON.parse(localStorage.getItem('forza4_user'));
+    if (user) {
+        const formData = new FormData();
+        formData.append('action', 'update_stats');
+        formData.append('username', user.username);
+        formData.append('win', isWin);
+
+        try {
+            await fetch('api.php', { method: 'POST', body: formData });
+        } catch (e) {
+            console.error('Failed to sync stats', e);
+        }
+    }
+}

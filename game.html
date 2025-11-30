@@ -12,8 +12,21 @@
     <div class="container">
         <h1>FORZA4</h1>
         <div class="game-info">
+            <div class="controls">
+                <button id="home-btn" class="mode-btn">Home</button>
+            </div>
             <div id="status" class="status">Player 1's Turn</div>
             <button id="reset-btn" class="reset-btn">New Game</button>
+        </div>
+        <div class="stats-container">
+            <div class="stat-box p1-stat">
+                <span>P1 Wins</span>
+                <span id="p1-wins">0</span>
+            </div>
+            <div class="stat-box p2-stat">
+                <span>P2/CPU Wins</span>
+                <span id="p2-wins">0</span>
+            </div>
         </div>
         <div id="board" class="board"></div>
     </div>
